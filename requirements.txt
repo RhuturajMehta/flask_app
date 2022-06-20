@@ -1,0 +1,17 @@
+flask
+gunicorn
+werkzeug
+nornir
+nornir-netmiko
+nornir-utils
+textfsm
+ntc-templates
+gunicorn
+easysnmp
+python-decouple
+python-dotenv
+WTForms
+flask_wtf
+flask_login
+PyYAML
+tacacs_plus

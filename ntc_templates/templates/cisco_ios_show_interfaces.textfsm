@@ -1,0 +1,17 @@
+Value Required INTERFACE (\S+)
+Value LINK_STATUS (.+?)
+Value PROTOCOL_STATUS (.+?)
+Value DESCRIPTION (.+?)
+Value LAST_INPUT (.+?)
+Value LAST_OUTPUT (.+?)
+Value LAST_OUTPUT_HANG (.+?)
+Value DUPLEX (([Ff]ull|[Aa]uto|[Hh]alf|[Aa]-).*?)
+Value SPEED (.*?)
+Value MEDIA_TYPE (\S+(\s+\S+)?)
+
+Start
+  ^\S+\s+is\s+.+?,\s+line\s+protocol.*$$ -> Continue.Record
+  ^${INTERFACE}\s+is\s+${LINK_STATUS},\s+line\s+protocol\s+is\s+${PROTOCOL_STATUS}\s*$$
+  ^\s+Description:\s+${DESCRIPTION}\s*$$
+  ^\s+${DUPLEX},\s+${SPEED},.+media\stype\sis\s${MEDIA_TYPE}$$
+  ^\s+Last\s+input\s+${LAST_INPUT},\s+output\s+${LAST_OUTPUT},\s+output\s+hang\s+${LAST_OUTPUT_HANG}\s*$$

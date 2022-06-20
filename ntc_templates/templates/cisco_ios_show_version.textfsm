@@ -1,0 +1,26 @@
+Value VERSION (.+?)
+Value HOSTNAME (\S+)
+Value UPTIME (.+)
+Value RELOAD_REASON (.+?)
+Value List HARDWARE (\S+|\S+\d\S+)
+Value List SERIAL (\S+)
+Value LICENSE (.+?)
+Value CONFIG_REGISTER (\S+)
+
+Start
+  ^.*Software\s.+\),\sVersion\s${VERSION},*\s+RELEASE.*
+  ^\s*${HOSTNAME}\s+uptime\s+is\s+${UPTIME}
+  ^(?:[sS]mart\s+Licensing\s+Status:)\s+${LICENSE}\s*$$
+  ^[Pp]rocessor\s+board\s+ID\s+${SERIAL}
+  ^[Cc]isco\s+${HARDWARE}\s+\(.+\).+
+  ^(?:[lL]ast\s+reload\s+reason:|System\s+returned\s+to\s+ROM\s+by)\s+${RELOAD_REASON}\s*$$
+  ^[Cc]onfiguration\s+register\s+is\s+${CONFIG_REGISTER}
+  ^Switch\s+Port -> Stack
+  # Capture time-stamp if vty line has command time-stamping turned on
+  ^Load\s+for\s+
+  ^Time\s+source\s+is
+
+Stack
+  ^[Ss]ystem\s+[Ss]erial\s+[Nn]umber\s+:\s+${SERIAL}
+  ^[Mm]odel\s+[Nn]umber\s+:\s+${HARDWARE}\s*
+  ^[Cc]onfiguration\s+register\s+is\s+${CONFIG_REGISTER}

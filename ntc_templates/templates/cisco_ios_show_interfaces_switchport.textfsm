@@ -1,0 +1,9 @@
+Value Required INTERFACES (\S+)
+Value ACCESS_VLAN (\d+|unassigned)
+Value VOICE_VLAN (\S+)
+
+Start
+  ^Name: -> Continue.Record
+  ^Name:\s+${INTERFACES}\s*$$
+  ^\s*Access\s+Mode\s+VLAN:\s+${ACCESS_VLAN}
+  ^\s*Voice\s+VLAN:\s+${VOICE_VLAN}

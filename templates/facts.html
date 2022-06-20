@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>NetOps</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type=text/css href="/static/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <script type="text/javascript" src="/static/node_modules/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="/static/node_modules/popper.js/dist/umd/popper.min.js"></script>
+  <script type="text/javascript" src="/static/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <style>
+  .fakeimg {
+    height: 200px;
+    background: #aaa;
+  }
+  .left-links{
+     flex:1 1 200px;
+  }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <div class="left-links">
+    <a class="navbar-brand" href="/main/location">Available Switchports</a>
+  </div>
+  <div class="right-links">
+    <a class="navbar-brand" href="/logout">Logout</a>
+  </div>
+</nav>
+
+<div class="container" style="margin-top:30px">
+  <div class="row">
+  <h3>{{ fact.HOSTNAME }}</h3>
+    <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Current Firmware</th>
+        <th>Serial Number</th>
+        <th>Hardware</th>
+        <th>Uptime</th>
+        <th>License Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ fact.VERSION }}</td>
+        <td>{{ fact.SERIAL }}</td>
+        <td>{{ fact.HARDWARE }}</td>
+        <td>{{ fact.UPTIME }}</td>
+        <td>{{ fact.LICENSE }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+  <div class="row">
+    <h3> Available Interfaces </h3>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Interface Name</th>
+          <th>Description</th>
+          <th>Link Status</th>
+          <th>Protocol Status</th>
+          <th>Last Input</th>
+          <th>Last Output</th>
+          <th>Access Vlan</th>
+          <th>Voice Vlan</th>
+      </thead>
+      <tbody>
+      {% for interface in interface %}
+        <tr>
+          <td>{{ interface.INTERFACE }}</td>
+          <td>{{ interface.DESCRIPTION }}</td>
+          <td>{{ interface.LINK_STATUS }}</td>
+          <td>{{ interface.PROTOCOL_STATUS }}</td>
+          <td>{{ interface.LAST_INPUT }}</td>
+          <td>{{ interface.LAST_OUTPUT }}</td>
+          <td>{{ interface.ACCESS_VLAN }}</td>
+          <td>{{ interface.VOICE_VLAN }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+</div>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>NetOps</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type=text/css href="/static/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <script type="text/javascript" src="/static/node_modules/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="/static/node_modules/popper.js/dist/umd/popper.min.js"></script>
+  <script type="text/javascript" src="/static/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <style>
+  .fakeimg {
+    height: 200px;
+    background: #aaa;
+  }
+  .left-links{
+     flex:1 1 200px;
+  }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <div class="left-links">
+    <a class="navbar-brand" href="/">Access Switch Status</a>
+  </div>
+  <div class="right-links">
+    <a class="navbar-brand" href="/logout">Logout</a>
+  </div>
+</nav>
+
+<div class="container" style="margin-top:30px">
+  <div class="row">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Hostname</th>
+          <th>Current Firmware</th>
+          <th>Hardware</th>
+          <th>Serial</th>
+          <th>Uptime</th>
+          <th>License Status</th>
+          <th>Config Register</th>
+          <th>Reload Reason</th>
+        </tr>
+      </thead>
+      {% for fact in fact %} 
+      <tbody>
+        {% for fact in fact %}
+        <tr>
+          <td>{{ fact.HOSTNAME }}</td>
+          <td>{{ fact.VERSION }}</td>
+          <td>{{ fact.HARDWARE }}</td>
+          <td>{{ fact.SERIAL }}</td>
+          <td>{{ fact.UPTIME }}</td>
+          <td>{{ fact.LICENSE }}</td>
+          <td>{{ fact.CONFIG_REGISTER }}</td>
+          <td>{{ fact.RELOAD_REASON }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
