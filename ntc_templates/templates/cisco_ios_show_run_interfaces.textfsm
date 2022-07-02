@@ -1,11 +1,13 @@
 Value Required INTERFACE (\S+)
 Value ACCESS_VLAN (\d+|unassigned)
 Value VOICE_VLAN (\S+)
+Value SWITCHPORT_MODE (.+?)
 Value AUTHENTICATION (.+?)
 
 Start
   ^interface -> Continue.Record
   ^interface\s+${INTERFACE}\s*$$
   ^\s*switchport\s+access\s+vlan\s+${ACCESS_VLAN}
+  ^\s*switchport\s+mode\s+${SWITCHPORT_MODE}\s*$$
   ^\s*switchport\s+voice\s+vlan\s+${VOICE_VLAN}
   ^\s+authentication\s+${AUTHENTICATION}\s*$$

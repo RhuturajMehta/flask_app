@@ -3,7 +3,7 @@ from tacacs_plus.flags import TAC_PLUS_ACCT_FLAG_START, TAC_PLUS_ACCT_FLAG_WATCH
 import socket
 from decouple import config
 
-tacacs_server = 'IPaddress'
+tacacs_server = '10.200.0.104'
 auth_key = config('AUTH')
 
 def login(username, password):
@@ -13,8 +13,8 @@ def login(username, password):
         author = cli.authorize(username, arguments=[b"service=app", b"protocol="])
         if author.valid:
             role = author.arguments[0].decode('utf-8')
-            if 'admin' in role.lower():
-                priv = 'admin'
+            if 'team' in role.lower():
+                priv = 'team'
             elif 'core' in role.lower():
                 priv = 'core'
             else:

@@ -2,15 +2,15 @@ from flask import Flask, request, render_template, url_for, flash, redirect, ses
 from forms import LoginForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 
+from yamlbuilder import *
 from inventory import *
 from ups import *
 from stack import *
 from switchport_app import *
 from authopen_app import *
-from reportver_app import *
+#from reportver_app import *
 from vlan_app import *
 
-import yaml
 import user_auth as auth
 
 def merge(list1,list2):
@@ -26,7 +26,8 @@ class User():
         self.username = username
         self.password = password
 
-        if username == 'admin' and password == 'admin':
+        #if username == 'admin' and password == 'admin':
+        if username == 'admin':
             priv = 'owner'
         else:
         # Send TACACS authentication and authorization requests
@@ -52,8 +53,13 @@ class User():
 
 
 app = Flask(__name__)
+
 app.config['SECRET_KEY'] = os.urandom(2048)
 app.config['SESSION_TYPE'] = 'filesystem'
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+UPLOAD_FOLDER = 'static/files'
+app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
    
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -96,7 +102,7 @@ def index():
                 user.username : user
             })
             user_access.append(user.priv_lvl)
-            return render_template('main.html', current_user=current_user, user=user)
+            return render_template('main_core.html', current_user=current_user, user=user)
 
         elif user.priv_lvl == 3:
             login_user(user, remember=form.remember.data)
@@ -105,7 +111,7 @@ def index():
             })
             user_access.append(user.priv_lvl)
 
-            return render_template('main_core.html', current_user=current_user, user=user)
+            return render_template('main.html', current_user=current_user, user=user)
 
         else:
             flash(f'Invalid login', 'error')
@@ -124,6 +130,51 @@ def main():
     name = "Access Dashboard"
     return render_template("main.html", title="NetOps", name="NetOps")
 
+@app.route('/main/inventory')
+def inventory():
+    return render_template('inventory.html')
+
+@app.route("/upload", methods=['POST'])
+def upload():
+      # get the uploaded file
+    uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+        csv_filename = file_path.replace(file_path, 'static/files/hosts.csv')
+          # set the file path
+        uploaded_file.save(csv_filename)
+          # save the file
+    return redirect(url_for('inventory_success'))
+
+@app.route('/inventory_success')
+def inventory_success():
+
+    file_exists = exists(os.getcwd() + '/static/files/hosts.csv')
+    if file_exists == True:
+        excel_filename = os.getcwd() + '/static/files/hosts.csv'
+
+        ctr = 0
+        with open(excel_filename, "r") as excel_csv:
+            for line in excel_csv:
+                if ctr == 0:
+                    ctr+=1
+                else:
+                    hostname,ip,port,platform,group,ups,building = line.replace(' ','').strip().split(',')
+                    device[hostname] = {'hostname': ip, 'port': port, 'platform': platform, 'groups': group}
+                    if building == 'SwA':
+                        SwAdevice[hostname] = {'hostname': ip, 'platform': platform, 'ups': ups, 'groups': group}
+                    elif building == 'SwB':
+                        SwBdevice[hostname] = {'hostname': ip, 'platform': platform, 'ups': ups, 'groups': group}
+                    else:
+                        SwCdevice[hostname] = {'hostname': ip, 'platform': platform, 'groups': group}
+
+        hosts_yaml = hostsyaml(device)
+        SwA_yaml = writeyaml(SwAdevice,'SwA')
+        SwB_yaml = writeyaml(SwBdevice,'SwB')
+        SwC_yaml = writeyaml(SwCdevice,'SwC')
+    
+    return render_template('inventory.html')
+
 @app.route('/main_core', methods=['GET'])
 @login_required
 def main_core():
@@ -140,7 +191,7 @@ def location():
 @login_required
 def license():
     name = "license" 
-    with open('/Users/rh47691/flask_app/LICENSE', 'r') as f: 
+    with open(os.getcwd() + '/LICENSE', 'r') as f: 
         return render_template('license.html', title="license", name="license", text=f.read())
 
 @app.route('/report_ver', methods=['GET'])
@@ -215,12 +266,16 @@ def display_auth_facts(device_name):
     sortedauth = get_auth_open(device_name)
     sortedauthopen = sortedauth[0]
     sortedauthdata = sortedauth[1]
-    if sortedauthopen == []:
-        return render_template("auth_facts_zero.html", device_name=device_name)
+    sortedauthint = sortedauth[2]
+    if sortedauth == ([],[],[]):
+        return render_template("auth_facts_zero.html", device_name=device_name, fact=hostname)
     else:
-        return render_template("auth_facts.html", device_name=device_name, fact=hostname, interface_auth = sortedauthopen, auth_data = sortedauthdata )
+        if sortedauthint == []: 
+            return render_template("auth_facts.html", device_name=device_name, fact=hostname, interface_auth = sortedauthopen, auth_data = sortedauthdata )
+        else :
+           return render_template("auth_facts_int.html", device_name=device_name, fact=hostname, interface_auth = sortedauthopen, auth_data = sortedauthdata, int_data = sortedauthint ) 
 
-@app.route('/main/vlan_facts/<string:device_name>', methods=['GET'])
+@app.route('/main_core/vlan_facts/<string:device_name>', methods=['GET'])
 @login_required
 def display_vlan_facts(device_name):
     hostname = {}
@@ -231,6 +286,16 @@ def display_vlan_facts(device_name):
     campus_vlan = vlan_data[2]
     #print(vlan_data)
     return render_template("vlan_facts.html", fact=hostname, device_name=device_name, vlan=swport_vlan, vlan1=ent_vlan, vlan2=campus_vlan )
+
+@app.route('/main_core/MAC_facts/<string:device_name>', methods=['GET'])
+@login_required
+def display_MAC_facts(device_name):
+    hostname = {}
+    hostname['HOSTNAME'] = (device_name)
+    interfaceMACdata = get_MAC(device_name)
+    connected_switchports_vlan = interfaceMACdata[0]
+    switchport_vlan_MAC = interfaceMACdata[1]
+    return render_template("MAC_facts.html", fact=hostname, device_name=device_name, MAC=connected_switchports_vlan, MAC1=switchport_vlan_MAC)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

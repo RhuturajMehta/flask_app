@@ -34,7 +34,7 @@ def get_vlan(device):
     purgedata2 = [k for k in purgedata if not k['INTERFACES'] != []]
     #print(purgedata2)
 
-    enterprise_vlan_list = open("enterprise_vlans.txt", "r")
+    enterprise_vlan_list = open("static/files/enterprise_vlans.txt", "r")
     data_read = enterprise_vlan_list.read()
     #print(data_read)
     enterprise_vlan = data_read.split("\n")
